@@ -18,6 +18,7 @@ const updateDrillSchema = z.object({
   phases: z.array(z.string()).optional(),
   diagramData: z.string().optional().nullable(),
   videoUrl: z.string().url().optional().nullable().or(z.literal('')),
+  imageUrl: z.string().optional().nullable().or(z.literal('')),
   isPublic: z.boolean().optional(),
 })
 
@@ -44,12 +45,10 @@ export async function GET(
       where: { id },
       include: {
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            teamName: true,
-          },
+          select: { id: true, name: true, email: true, teamName: true },
+        },
+        lastModifiedBy: {
+          select: { id: true, name: true, email: true },
         },
         _count: {
           select: { likes: true },
@@ -113,10 +112,14 @@ export async function PATCH(
       skills,
       phases,
       videoUrl,
+      imageUrl,
       ...rest
     } = parsed.data
 
-    const updateData: Record<string, any> = { ...rest }
+    const updateData: Record<string, any> = {
+      ...rest,
+      lastModifiedById: session.user.id,
+    }
 
     if (objectives !== undefined) updateData.objectives = serializeJsonField(objectives)
     if (ageGroups !== undefined) updateData.ageGroups = serializeJsonField(ageGroups)
@@ -124,18 +127,17 @@ export async function PATCH(
     if (skills !== undefined) updateData.skills = serializeJsonField(skills)
     if (phases !== undefined) updateData.phases = serializeJsonField(phases)
     if (videoUrl !== undefined) updateData.videoUrl = videoUrl || null
+    if (imageUrl !== undefined) updateData.imageUrl = imageUrl || null
 
     const updated = await prisma.drill.update({
       where: { id },
       data: updateData,
       include: {
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            teamName: true,
-          },
+          select: { id: true, name: true, email: true, teamName: true },
+        },
+        lastModifiedBy: {
+          select: { id: true, name: true, email: true },
         },
         _count: {
           select: { likes: true },

@@ -19,12 +19,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  drills        Drill[]
-  practicePlans PracticePlan[]
-  chatSessions  ChatSession[]
-  drillLikes    DrillLike[]
+  accounts         Account[]
+  sessions         Session[]
+  drills           Drill[]   @relation("DrillAuthor")
+  modifiedDrills   Drill[]   @relation("DrillLastModifiedBy")
+  practicePlans    PracticePlan[]
+  chatSessions     ChatSession[]
+  drillLikes       DrillLike[]
 }
 
 model Account {
@@ -89,7 +90,11 @@ model Drill {
 
   // Relations
   authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
+  author      User     @relation("DrillAuthor", fields: [authorId], references: [id])
+
+  // Audit
+  lastModifiedById  String?
+  lastModifiedBy    User?    @relation("DrillLastModifiedBy", fields: [lastModifiedById], references: [id])
 
   practicePlanDrills PracticePlanDrill[]
   likes       DrillLike[]
@@ -98,6 +103,7 @@ model Drill {
   updatedAt   DateTime @updatedAt
 
   @@index([authorId])
+  @@index([lastModifiedById])
 }
 
 model DrillLike {

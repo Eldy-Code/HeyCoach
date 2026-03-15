@@ -28,6 +28,12 @@ export interface Drill {
     email: string
     teamName?: string | null
   }
+  lastModifiedById?: string | null
+  lastModifiedBy?: {
+    id: string
+    name?: string | null
+    email: string
+  } | null
   likes?: DrillLike[]
   _count?: { likes: number }
   createdAt: string

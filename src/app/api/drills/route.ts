@@ -18,6 +18,7 @@ const createDrillSchema = z.object({
   phases: z.array(z.string()).min(1, 'At least one phase is required'),
   diagramData: z.string().optional().nullable(),
   videoUrl: z.string().url().optional().nullable().or(z.literal('')),
+  imageUrl: z.string().optional().nullable().or(z.literal('')),
   isPublic: z.boolean().default(false),
 })
 
@@ -73,12 +74,10 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            teamName: true,
-          },
+          select: { id: true, name: true, email: true, teamName: true },
+        },
+        lastModifiedBy: {
+          select: { id: true, name: true, email: true },
         },
         _count: {
           select: { likes: true },
@@ -141,6 +140,7 @@ export async function POST(request: NextRequest) {
       phases,
       diagramData,
       videoUrl,
+      imageUrl,
       isPublic,
     } = parsed.data
 
@@ -158,17 +158,16 @@ export async function POST(request: NextRequest) {
         phases: serializeJsonField(phases),
         diagramData: diagramData ?? null,
         videoUrl: videoUrl || null,
+        imageUrl: imageUrl || null,
         isPublic,
         authorId: session.user.id,
       },
       include: {
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            teamName: true,
-          },
+          select: { id: true, name: true, email: true, teamName: true },
+        },
+        lastModifiedBy: {
+          select: { id: true, name: true, email: true },
         },
         _count: {
           select: { likes: true },

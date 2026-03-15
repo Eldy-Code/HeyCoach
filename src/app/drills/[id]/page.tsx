@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { parseJsonField, formatDuration, relativeTime } from '@/lib/utils'
 import { TopBar } from '@/components/layout/TopBar'
 import { Drill } from '@/types'
+import NextImage from 'next/image'
 import {
   ArrowLeft,
   Clock,
@@ -17,6 +18,8 @@ import {
   Play,
   Image as ImageIcon,
   Code2,
+  UserCircle2,
+  History,
 } from 'lucide-react'
 import LikeButton from './_components/LikeButton'
 import ShareButton from './_components/ShareButton'
@@ -66,6 +69,7 @@ export default async function DrillDetailPage({ params }: PageProps) {
     where: { id },
     include: {
       author: { select: { id: true, name: true, email: true, teamName: true } },
+      lastModifiedBy: { select: { id: true, name: true, email: true } },
       _count: { select: { likes: true } },
       likes: { where: { userId }, select: { id: true } },
     },
@@ -90,6 +94,9 @@ export default async function DrillDetailPage({ params }: PageProps) {
     createdAt: rawDrill.createdAt.toISOString(),
     updatedAt: rawDrill.updatedAt.toISOString(),
   }
+
+  const lastModifiedName = drill.lastModifiedBy?.name ?? drill.lastModifiedBy?.email ?? null
+  const wasModified = !!drill.lastModifiedById && drill.lastModifiedById !== drill.authorId
 
   const isOwner = drill.authorId === userId
   const likeCount = drill._count?.likes ?? 0
@@ -136,7 +143,28 @@ export default async function DrillDetailPage({ params }: PageProps) {
                   {drill.author?.teamName && (
                     <span className="text-xs text-gray-600">· {drill.author.teamName}</span>
                   )}
-                  <span className="text-xs text-gray-600">· {relativeTime(drill.updatedAt)}</span>
+                </div>
+
+                {/* Audit row */}
+                <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <UserCircle2 size={12} />
+                    <span>Created {relativeTime(drill.createdAt)}</span>
+                  </div>
+                  {wasModified && lastModifiedName ? (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                      <History size={12} />
+                      <span>
+                        Last edited by <span className="text-gray-400">{lastModifiedName}</span>{' '}
+                        {relativeTime(drill.updatedAt)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                      <History size={12} />
+                      <span>Updated {relativeTime(drill.updatedAt)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -246,22 +274,41 @@ export default async function DrillDetailPage({ params }: PageProps) {
                     </a>
                   )}
                   {drill.imageUrl && (
-                    <a
-                      href={drill.imageUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 bg-railers-black border border-white/5 rounded-lg hover:border-railers-red/30 transition-colors group"
-                    >
-                      <div className="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <ImageIcon size={14} className="text-gray-400" />
+                    drill.imageUrl.startsWith('/uploads/') ? (
+                      <div className="rounded-lg overflow-hidden border border-white/10">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-railers-black border-b border-white/5">
+                          <ImageIcon size={12} className="text-gray-400" />
+                          <span className="text-xs text-gray-400 font-medium">Drill Diagram</span>
+                        </div>
+                        <div className="relative w-full" style={{ minHeight: 200 }}>
+                          <NextImage
+                            src={drill.imageUrl}
+                            alt={`${drill.title} diagram`}
+                            width={800}
+                            height={600}
+                            className="w-full h-auto object-contain bg-black"
+                            unoptimized
+                          />
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
-                          Diagram Image
-                        </p>
-                        <p className="text-xs text-gray-600 truncate">{drill.imageUrl}</p>
-                      </div>
-                    </a>
+                    ) : (
+                      <a
+                        href={drill.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 bg-railers-black border border-white/5 rounded-lg hover:border-railers-red/30 transition-colors group"
+                      >
+                        <div className="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <ImageIcon size={14} className="text-gray-400" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
+                            Diagram Image
+                          </p>
+                          <p className="text-xs text-gray-600 truncate">{drill.imageUrl}</p>
+                        </div>
+                      </a>
+                    )
                   )}
                 </div>
               </div>

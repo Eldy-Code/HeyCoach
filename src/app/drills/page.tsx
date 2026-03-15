@@ -6,7 +6,7 @@ import { DrillCard } from '@/components/drills/DrillCard'
 import { DrillFilters } from '@/components/drills/DrillFilters'
 import { Drill } from '@/types'
 import Link from 'next/link'
-import { Dumbbell, Plus } from 'lucide-react'
+import { Dumbbell, Plus, Upload } from 'lucide-react'
 
 interface SearchParams {
   search?: string
@@ -91,12 +91,20 @@ export default async function DrillsPage({ searchParams }: { searchParams: Searc
             {drills.length} drill{drills.length !== 1 ? 's' : ''}
             {search && ` for "${search}"`}
           </p>
-          <Link
-            href="/drills/new"
-            className="md:hidden flex items-center gap-1.5 bg-railers-red text-white text-xs font-semibold px-3 py-1.5 rounded-lg"
-          >
-            <Plus size={14} /> New Drill
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/drills/upload"
+              className="flex items-center gap-1.5 bg-white/5 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+            >
+              <Upload size={13} /> Upload Image
+            </Link>
+            <Link
+              href="/drills/new"
+              className="md:hidden flex items-center gap-1.5 bg-railers-red text-white text-xs font-semibold px-3 py-1.5 rounded-lg"
+            >
+              <Plus size={14} /> New Drill
+            </Link>
+          </div>
         </div>
 
         {/* Grid */}
