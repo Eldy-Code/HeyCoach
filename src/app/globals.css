@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-oswald: 'Oswald', Impact, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0A0A0A;
+  color: #ffffff;
+  font-family: var(--font-inter);
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1A1A1A;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8102E;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E8304E;
+}
+
+/* Prose/markdown styles for chat */
+.prose-dark h1,
+.prose-dark h2,
+.prose-dark h3 {
+  color: #C8102E;
+  font-family: var(--font-oswald);
+}
+.prose-dark p {
+  color: #e5e5e5;
+  line-height: 1.7;
+}
+.prose-dark ul,
+.prose-dark ol {
+  color: #e5e5e5;
+  padding-left: 1.5rem;
+}
+.prose-dark li {
+  margin: 0.25rem 0;
+}
+.prose-dark strong {
+  color: #ffffff;
+}
+.prose-dark code {
+  background: #242424;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  color: #C8102E;
+}
+
+/* Rink diagram canvas */
+.rink-canvas {
+  border: 2px solid #C8102E;
+  border-radius: 8px;
+  cursor: crosshair;
+}
+
+/* Drag over highlight */
+.drag-over {
+  border-color: #C8102E !important;
+  background-color: rgba(200, 16, 46, 0.1) !important;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+}
+.badge-red {
+  @apply badge bg-railers-red/20 text-railers-red border border-railers-red/30;
+}
+.badge-gray {
+  @apply badge bg-white/10 text-gray-300 border border-white/20;
+}
+.badge-green {
+  @apply badge bg-green-500/20 text-green-400 border border-green-500/30;
+}
+.badge-yellow {
+  @apply badge bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(200, 16, 46, 0.15);
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-railers-red hover:bg-railers-red-dark text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+.btn-secondary {
+  @apply bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+.btn-ghost {
+  @apply hover:bg-white/10 text-gray-400 hover:text-white py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+/* Input styles */
+.input-dark {
+  @apply bg-railers-black-card border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500
+         focus:outline-none focus:ring-2 focus:ring-railers-red/50 focus:border-railers-red/50 transition-all;
+}
+
+/* Chat message animations */
+.chat-message {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Loading spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(200, 16, 46, 0.3);
+  border-top-color: #C8102E;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

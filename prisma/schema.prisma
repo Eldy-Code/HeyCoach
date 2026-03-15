@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("coach") // coach, admin
+  teamName      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  drills        Drill[]
+  practicePlans PracticePlan[]
+  chatSessions  ChatSession[]
+  drillLikes    DrillLike[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Drill {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  objectives  String   // JSON array
+  duration    Int      // minutes
+  players     String   @default("full-team") // full-team, pairs, individual, groups
+  intensity   String   @default("medium") // low, medium, high
+
+  // Categories
+  ageGroups   String   // JSON array: ["8u", "10u", "12u", "14u", "16u", "18u", "adult"]
+  positions   String   // JSON array: ["all", "forwards", "defensemen", "goalies", "centers", "wingers"]
+  skills      String   // JSON array: ["skating", "passing", "shooting", "puck-handling", "defense", "goaltending", "conditioning", "systems"]
+  phases      String   // JSON array: ["warmup", "skill-development", "scrimmage", "cooldown"]
+
+  // Diagram
+  diagramData String?  // JSON string for rink diagram
+
+  // Media
+  videoUrl    String?
+  imageUrl    String?
+
+  // Visibility
+  isPublic    Boolean  @default(false)
+
+  // Relations
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+
+  practicePlanDrills PracticePlanDrill[]
+  likes       DrillLike[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+model DrillLike {
+  id      String @id @default(cuid())
+  drillId String
+  userId  String
+  drill   Drill  @relation(fields: [drillId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([drillId, userId])
+}
+
+model PracticePlan {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime?
+  totalDuration Int    @default(0) // minutes
+  ageGroup    String?
+  teamNotes   String?
+  isPublic    Boolean  @default(false)
+
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+
+  drills      PracticePlanDrill[]
+  chatSessions ChatSession[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+model PracticePlanDrill {
+  id             String @id @default(cuid())
+  planId         String
+  drillId        String
+  order          Int
+  duration       Int    // override duration in minutes
+  notes          String?
+
+  plan   PracticePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  drill  Drill        @relation(fields: [drillId], references: [id])
+
+  @@unique([planId, order])
+  @@index([planId])
+}
+
+model ChatSession {
+  id          String   @id @default(cuid())
+  title       String   @default("New Chat")
+  userId      String
+  planId      String?
+
+  user  User         @relation(fields: [userId], references: [id])
+  plan  PracticePlan? @relation(fields: [planId], references: [id])
+  messages ChatMessage[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String   // user | assistant
+  content   String
+  createdAt DateTime @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
