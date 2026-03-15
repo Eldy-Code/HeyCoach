@@ -10,6 +10,7 @@ export default function HomePage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -27,6 +28,7 @@ export default function HomePage() {
       const result = await signIn('credentials', {
         email,
         password,
+        rememberMe: String(rememberMe),
         redirect: false,
       })
       if (result?.error) {
@@ -209,6 +211,32 @@ export default function HomePage() {
                     className="bg-railers-black-soft border border-railers-black-soft rounded-lg px-4 py-3 text-railers-white placeholder-railers-silver/50 text-sm focus:outline-none focus:border-railers-red focus:ring-1 focus:ring-railers-red transition-colors"
                   />
                 </div>
+
+                {/* Remember Me */}
+                <label className="flex items-center gap-2.5 cursor-pointer select-none group">
+                  <span
+                    className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
+                      rememberMe
+                        ? 'bg-railers-red border-railers-red'
+                        : 'border-railers-black-soft bg-railers-black-soft group-hover:border-railers-red/50'
+                    }`}
+                  >
+                    {rememberMe && (
+                      <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                        <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <span className="text-sm text-railers-silver group-hover:text-railers-white transition-colors">
+                    Keep me signed in for 30 days
+                  </span>
+                </label>
 
                 <button
                   type="submit"

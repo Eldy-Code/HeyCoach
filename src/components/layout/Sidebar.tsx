@@ -9,11 +9,11 @@ import {
   Dumbbell,
   ClipboardList,
   MessageSquare,
-  Users,
   Settings,
   LogOut,
   ChevronRight,
   Zap,
+  ShieldCheck,
 } from 'lucide-react'
 
 const navItems = [
@@ -107,6 +107,22 @@ export function Sidebar() {
             <Settings size={18} />
             <span className="font-medium text-sm">Settings</span>
           </Link>
+
+          {session?.user?.role === 'admin' && (
+            <Link
+              href="/admin"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 mt-1',
+                isActive('/admin', true)
+                  ? 'bg-railers-red text-white shadow-lg shadow-railers-red/20'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              )}
+            >
+              <ShieldCheck size={18} className="flex-shrink-0" />
+              <span className="font-medium text-sm flex-1">Admin Console</span>
+              {isActive('/admin', true) && <ChevronRight size={14} className="opacity-60" />}
+            </Link>
+          )}
         </div>
       </nav>
 

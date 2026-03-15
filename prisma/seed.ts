@@ -6,21 +6,35 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🏒 Seeding HeyCoach database...')
 
-  // Create demo coach
+  // Create demo admin
   const hashedPassword = await bcrypt.hash('heycoach123', 12)
   const coach = await prisma.user.upsert({
     where: { email: 'coach@juniorrailers.com' },
-    update: {},
+    update: { role: 'admin' },
     create: {
       name: 'Coach Demo',
       email: 'coach@juniorrailers.com',
+      password: hashedPassword,
+      teamName: 'Worcester Rail Dawgs',
+      role: 'admin',
+    },
+  })
+
+  // Create a second demo coach (non-admin)
+  const coach2 = await prisma.user.upsert({
+    where: { email: 'assistant@juniorrailers.com' },
+    update: {},
+    create: {
+      name: 'Asst. Coach',
+      email: 'assistant@juniorrailers.com',
       password: hashedPassword,
       teamName: 'Worcester Rail Dawgs',
       role: 'coach',
     },
   })
 
-  console.log('✅ Created demo coach:', coach.email)
+  console.log('✅ Created demo admin:', coach.email)
+  console.log('✅ Created demo coach:', coach2.email)
 
   const drillsData = [
     {
